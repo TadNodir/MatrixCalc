@@ -1,94 +1,28 @@
-package sample;
+package com.example.matrixcalc;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Controller {
 
     @FXML
-    private TextField x11;
+    private TextField x11, x12, x13,
+                      x21, x22, x23,
+                      x31, x32, x33;
 
     @FXML
-    private TextField x21;
+    private TextField y11, y12, y13,
+                      y21, y22, y23,
+                      y31, y32, y33;
+
 
     @FXML
-    private TextField x31;
-
-    @FXML
-    private TextField x12;
-
-    @FXML
-    private TextField x22;
-
-    @FXML
-    private TextField x32;
-
-    @FXML
-    private TextField x13;
-
-    @FXML
-    private TextField x23;
-
-    @FXML
-    private TextField x33;
-
-    @FXML
-    private TextField y11;
-
-    @FXML
-    private TextField y12;
-
-    @FXML
-    private TextField y13;
-
-    @FXML
-    private TextField y21;
-
-    @FXML
-    private TextField y22;
-
-    @FXML
-    private TextField y23;
-
-    @FXML
-    private TextField y31;
-
-    @FXML
-    private TextField y32;
-
-    @FXML
-    private TextField y33;
-
-    @FXML
-    private Text z11;
-
-    @FXML
-    private Text z12;
-
-    @FXML
-    private Text z13;
-
-    @FXML
-    private Text z21;
-
-    @FXML
-    private Text z22;
-
-    @FXML
-    private Text z23;
-
-    @FXML
-    private Text z31;
-
-    @FXML
-    private Text z32;
-
-    @FXML
-    private Text z33;
+    private Text z11, z12, z13,
+                 z21, z22, z23,
+                 z31, z32, z33;
 
     @FXML
     private Text messageText;
@@ -107,42 +41,26 @@ public class Controller {
         textMatrix2 = new TextField[3][3];
         result = new Text[3][3];
 
-        textMatrix[0][0] = x11;
-        textMatrix[0][1] = x12;
-        textMatrix[0][2] = x13;
-        textMatrix[1][0] = x21;
-        textMatrix[1][1] = x22;
-        textMatrix[1][2] = x23;
-        textMatrix[2][0] = x31;
-        textMatrix[2][1] = x32;
-        textMatrix[2][2] = x33;
-
-        textMatrix2[0][0] = y11;
-        textMatrix2[0][1] = y12;
-        textMatrix2[0][2] = y13;
-        textMatrix2[1][0] = y21;
-        textMatrix2[1][1] = y22;
-        textMatrix2[1][2] = y23;
-        textMatrix2[2][0] = y31;
-        textMatrix2[2][1] = y32;
-        textMatrix2[2][2] = y33;
-
-        result[0][0] = z11;
-        result[0][1] = z12;
-        result[0][2] = z13;
-        result[1][0] = z21;
-        result[1][1] = z22;
-        result[1][2] = z23;
-        result[2][0] = z31;
-        result[2][1] = z32;
-        result[2][2] = z33;
+        populateArray(textMatrix, "x", TextField.class);
+        populateArray(textMatrix2, "y", TextField.class);
+        populateArray(result, "z", Text.class);
     }
 
-    /**
-     * Checks if the given string text is in a number form
-     *
-     * @param text to be checked
-     */
+    // template methods evala
+    private <T> void populateArray(T[][] array, String prefix, Class<T> fieldType) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                String fieldName = prefix + (i + 1) + (j + 1);
+                try {
+                    array[i][j] = fieldType.cast(this.getClass().getDeclaredField(fieldName).get(this));
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     private boolean numberFormatChecker(String text) {
         String regularExpression = "[-+]?[0-9]*\\.?[0-9]+$";
         Pattern pattern = Pattern.compile(regularExpression);
@@ -150,9 +68,6 @@ public class Controller {
         return matcher.matches();
     }
 
-    /**
-     * Parses the given text into integer
-     */
     private void parseText() {
         messageText.setText("");
         int a = 0;
@@ -181,12 +96,9 @@ public class Controller {
         }
     }
 
-
-    /**
-     * The method adds two matrices
-     */
     @FXML
-    public void add() {
+    public void add()
+            throws NoSuchFieldException, IllegalAccessException {
         parseText();
         int[][] sum = new int[3][3];
         // looping through rows
@@ -197,22 +109,18 @@ public class Controller {
                 result[x][y].setText(Integer.toString(sum[x][y]));
             }
         }
-        z11 = result[0][0];
-        z12 = result[0][1];
-        z13 = result[0][2];
-        z21 = result[1][0];
-        z22 = result[1][1];
-        z23 = result[1][2];
-        z31 = result[2][0];
-        z32 = result[2][1];
-        z33 = result[2][2];
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                String fieldName = "z" + (i + 1) + (j + 1);
+                this.getClass().getDeclaredField(fieldName).set(this, result[i][j]);
+            }
+        }
     }
 
-    /**
-     * Multiplies one matrix with another
-     */
     @FXML
-    public void multiply() {
+    public void multiply()
+            throws NoSuchFieldException, IllegalAccessException{
         parseText();
         // creates a new 2D variable for the result of multiplying of two matrices
         int[][] output = new int[3][3];
@@ -229,15 +137,14 @@ public class Controller {
                 }
             }
         }
-        z11 = result[0][0];
-        z12 = result[0][1];
-        z13 = result[0][2];
-        z21 = result[1][0];
-        z22 = result[1][1];
-        z23 = result[1][2];
-        z31 = result[2][0];
-        z32 = result[2][1];
-        z33 = result[2][2];
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                String fieldName = "z" + (i + 1) + (j + 1);
+                this.getClass().getDeclaredField(fieldName).set(this, result[i][j]);
+            }
+        }
     }
 }
 
+// Javata basi mastiqta
